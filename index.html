@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>MiMusica</title>
+
+  <meta name="theme-color" content="#111827" />
+  <meta name="description" content="App personal para guardar música escuchada y pendiente." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="MiMusica" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <h1>🎵 MiMusica</h1>
+    </header>
+
+    <main class="container">
+      <!-- Vista: Añadir -->
+      <section id="view-add" class="view">
+        <section class="card">
+          <h2 id="formTitle">Añadir registro</h2>
+
+          <form id="musicForm">
+            <input type="hidden" id="itemId" />
+
+            <label>
+              Artista *
+              <input type="text" id="artist" placeholder="Ej: Radiohead" required />
+            </label>
+
+            <label>
+              Álbum / Canción / EP *
+              <input type="text" id="title" placeholder="Ej: In Rainbows" required />
+            </label>
+
+            <label>
+              Tipo *
+              <select id="type" required>
+                <option value="Álbum">Álbum</option>
+                <option value="Canción">Canción</option>
+                <option value="EP">EP</option>
+                <option value="Single">Single</option>
+                <option value="Mixtape">Mixtape</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </label>
+            
+            <label>
+              Estilo / Género
+              <input type="text" id="genre" placeholder="Ej: Rock, Jazz, Electrónica..." />
+            </label>
+
+            <label>
+              Estado *
+              <select id="status" required>
+                <option value="pendiente">Pendiente</option>
+              </select>
+            </label>
+
+            <label>
+              Fecha de añadido *
+              <input type="date" id="dateAdded" required />
+            </label>
+
+            <label>
+              Nota personal
+              <textarea id="note" rows="3" placeholder="Opcional"></textarea>
+            </label>
+
+            <input type="hidden" id="rating" value="" />
+
+            <div class="form-actions">
+              <button type="submit" class="btn primary">Guardar</button>
+              <button type="button" id="cancelEditBtn" class="btn secondary hidden">Cancelar edición</button>
+            </div>
+            
+            <div class="backup-actions">
+              <button type="button" id="exportBtn" class="btn secondary">Exportar JSON</button>
+              <button type="button" id="importBtn" class="btn secondary">Importar JSON</button>
+              <input type="file" id="importInput" accept="application/json" hidden />
+            </div>
+          </form>
+        </section>
+      </section>
+
+      <!-- Vista: Pendientes -->
+      <section id="view-pending" class="view active">
+        <section class="card">
+          <div class="section-head">
+            <h2>Pendientes</h2>
+            <button id="randomBtn" class="btn btn-random">🎲 Aleatorio</button>
+          </div>
+
+          <div class="toolbar toolbar-search">
+            <input
+              type="text"
+              id="pendingSearch"
+              placeholder="Buscar artista o título"
+              aria-label="Buscar pendientes por artista o título"
+            />
+          
+            <div class="toolbar toolbar-3">
+              <select id="pendingFilterType" aria-label="Filtrar pendientes por tipo">
+                <option value="all">Filtrar por tipo: todos</option>
+                <option value="Álbum">Álbum</option>
+                <option value="Canción">Canción</option>
+                <option value="EP">EP</option>
+                <option value="Single">Single</option>
+                <option value="Mixtape">Mixtape</option>
+                <option value="Otro">Otro</option>
+              </select>
+              
+              <select id="pendingFilterGenre" aria-label="Filtrar pendientes por género">
+                <option value="all">Filtrar por género: todos</option>
+              </select>
+              
+              <select id="pendingSortBy" aria-label="Ordenar pendientes">
+                <option value="date_desc">Orden: reciente</option>
+                <option value="date_asc">Orden: antigua</option>
+                <option value="artist_asc">Artista: A-Z</option>
+                <option value="artist_desc">Artista: Z-A</option>
+                <option value="title_asc">Título: A-Z</option>
+                <option value="title_desc">Título: Z-A</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="randomBox" class="random-box hidden"></div>
+          <div id="pendingList" class="list"></div>
+          <p id="pendingEmpty" class="empty-text">No tienes música pendiente.</p>
+          <div id="pendingPagination" class="pagination"></div>
+        </section>
+      </section>
+
+      <!-- Vista: Escuchado -->
+      <section id="view-heard" class="view">
+        <section class="card">
+          <h2>Escuchado</h2>
+
+          <div class="toolbar toolbar-search">
+            <input
+              type="text"
+              id="heardSearch"
+              placeholder="Buscar artista o título"
+              aria-label="Buscar escuchados por artista o título"
+            />
+          
+            <div class="toolbar toolbar-3">
+              <select id="heardFilterType" aria-label="Filtrar escuchados por tipo">
+                <option value="all">Filtrar por tipo: todos</option>
+                <option value="Álbum">Álbum</option>
+                <option value="Canción">Canción</option>
+                <option value="EP">EP</option>
+                <option value="Single">Single</option>
+                <option value="Mixtape">Mixtape</option>
+                <option value="Otro">Otro</option>
+              </select>
+              
+              <select id="heardFilterGenre" aria-label="Filtrar escuchados por género">
+                <option value="all">Filtrar por género: todos</option>
+              </select>
+              
+              <select id="heardSortBy" aria-label="Ordenar escuchados">
+                <option value="date_desc">Escuchado: reciente</option>
+                <option value="date_asc">Escuchado: antigua</option>
+                <option value="artist_asc">Artista: A-Z</option>
+                <option value="artist_desc">Artista: Z-A</option>
+                <option value="title_asc">Título: A-Z</option>
+                <option value="title_desc">Título: Z-A</option>
+                <option value="rating_desc">Puntuación: mayor</option>
+                <option value="rating_asc">Puntuación: menor</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="heardList" class="list"></div>
+          <p id="heardEmpty" class="empty-text">No tienes música escuchada guardada.</p>
+          <div id="heardPagination" class="pagination"></div>
+        </section>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn" data-view="add">Añadir</button>
+      <button class="nav-btn active" data-view="pending">Pendientes</button>
+      <button class="nav-btn" data-view="heard">Escuchado</button>
+    </nav>
+  </div>
+  
+  
+    <div id="ratingModal" class="modal hidden">
+      <div class="modal-backdrop" id="ratingModalBackdrop"></div>
+      
+      <div class="modal-content">
+        <h3>Puntuar escucha</h3>
+        <p id="ratingModalText" class="modal-text"></p>
+        
+        <div id="ratingModalButtons" class="modal-rating-grid"></div>
+        <p id="ratingModalValue" class="modal-value">Sin puntuación seleccionada</p>
+        
+        <div class="modal-actions">
+          <button type="button" id="saveRatingBtn" class="btn primary">Guardar nota</button>
+          <button type="button" id="cancelRatingBtn" class="btn secondary">Cancelar</button>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div id="deleteModal" class="modal hidden">
+      <div class="modal-backdrop" id="deleteModalBackdrop"></div>
+      
+      <div class="modal-content">
+        <h3>Confirmar borrado</h3>
+        <p id="deleteModalText" class="modal-text">
+          ¿Seguro que quieres borrar este registro?
+        </p>
+        
+        <div class="modal-actions">
+          <button type="button" id="confirmDeleteBtn" class="btn danger">Borrar</button>
+          <button type="button" id="cancelDeleteBtn" class="btn secondary">Cancelar</button>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div id="importModal" class="modal hidden">
+        <div class="modal-backdrop" id="importModalBackdrop"></div>
+        
+        <div class="modal-content">
+          <h3>Importar datos</h3>
+          <p id="importModalText" class="modal-text">
+            Esto reemplazará todos tus datos actuales.
+          </p>
+          
+          <div class="modal-actions">
+            <button type="button" id="confirmImportBtn" class="btn primary">Importar</button>
+            <button type="button" id="cancelImportBtn" class="btn secondary">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    
+    <div id="duplicateModal" class="modal hidden">
+      <div class="modal-backdrop" id="duplicateModalBackdrop"></div>
+      
+      <div class="modal-content">
+        <h3>Posible duplicado</h3>
+        <p id="duplicateModalText" class="modal-text">
+          Ya existe un registro parecido. ¿Quieres guardarlo igualmente?
+        </p>
+        
+        <div class="modal-actions">
+          <button type="button" id="confirmDuplicateBtn" class="btn primary">Guardar igualmente</button>
+          <button type="button" id="cancelDuplicateBtn" class="btn secondary">Cancelar</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="successToast" class="toast hidden">Guardado en escuchados</div>
+
+  <script src="app.js"></script>
+</body>
+</html>
